@@ -9,9 +9,9 @@ import (
 	"strings"
 )
 
-// md5sum returns the MD5 hash of a file.  The MD5 provides a signature
-// the file, allowing us to check whether two versions are the same.
-func md5sum(file string) (string, error) {
+// Md5sum returns the MD5 hash of a file. The MD5 provides a signature
+// for the file, allowing us to check whether two versions are the same.
+func Md5sum(file string) (string, error) {
 	var chk string
 	f, err := os.Open(file)
 	if err != nil {
