@@ -100,7 +100,7 @@ func (g *Genome) AddFastaFile(file string) error {
 	// process to provide a "signature" that we can use in future to
 	// match FASTA files against serialised derived structures such as
 	// Genome and Seed.
-	md5, err := md5sum(file)
+	md5, err := Md5sum(file)
 	if err != nil {
 		return err
 	}
