@@ -9,8 +9,8 @@ import (
 	"strconv"
 	"strings"
 
-	log "github.com/sirupsen/logrus"
 	"github.com/grendeloz/runp"
+	log "github.com/sirupsen/logrus"
 )
 
 // Seed has a very different use case from Genome. It applies
@@ -46,7 +46,7 @@ import (
 // which it is created, Seeds must be created via the Genome method
 // NewSeed.
 type Seed struct {
-	Mask       string                // e.g. 11_1_1
+	Mask       string // e.g. 11_1_1
 	Sequences  []*Sequence
 	Offsets    map[string]int
 	Sequence   []byte
@@ -73,6 +73,7 @@ func (gs *Seed) AddProvenance() {
 	gs.Provenance = append(provs, gs.Provenance...)
 }
 
+// GenomeUUID returns the UUID assigned to this seed at creation.
 func (gs *Seed) GenomeUUID() string {
 	return gs.genomeUUID
 }
@@ -101,6 +102,8 @@ func (gs *Seed) WriteAsGob(dir string) (string, error) {
 	return file, nil
 }
 
+// SeedFromGob reads a file and unmarshals it assuming it to be a Seed
+// serialised to disk using encoding/gob.
 func SeedFromGob(file string) (*Seed, error) {
 	var gs *Seed
 
@@ -134,7 +137,6 @@ func (gs *Seed) addSequence(s *Sequence) error {
 	// identifying where each Sequence starts and ends.
 	ns.Header = s.Header
 	ns.FastaFile = s.FastaFile
-	ns.FileMD5 = s.FileMD5
 
 	// End of the current Seed sequence
 	offset := len(gs.Sequence)
@@ -162,7 +164,7 @@ func (gs *Seed) applySeed(seed string) error {
 	seedposlen := len(seedpos)
 
 	// To avoid lots of allocations we are going to use one seed slice
-	// overwrite it. Because strings are immutable, substring
+	// and overwrite it. Because strings are immutable, substring
 	// replacements are pretty expensive so we will use a byte array
 	// which we will rewrite and at the end we will string() it when we
 	// need to use it as a hash lookup.

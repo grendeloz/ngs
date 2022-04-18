@@ -11,8 +11,33 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
+// FastaFile must be uniquely identifiable so we can check that a given
+// FASTA file matches the one used to create Genomes etc. Files can
+// change location so Filepath is not enough - MD5 is not a perfect
+// solution but it's a pretty handy siganture.
+type FastaFile struct {
+	Filepath string
+	MD5      string
+}
+
+// ParseFastaFile reads a file and parses it as though it were a FASTA
+// file. It will handle gzipped files as long as they have a .gz
+// extension.
 func ParseFastaFile(file string) ([]*Sequence, error) {
 	var seqs []*Sequence
+
+	// Every FASTA file must be MD5 summed as part of the reading
+	// process to provide a "signature" that we can use in future to
+	// match FASTA files against serialised derived structures such as
+	// Genome and Seed.
+	md5, err := Md5sum(file)
+	if err != nil {
+		return nil, err
+	}
+
+	fasta := &FastaFile{
+		Filepath: file,
+		MD5:      md5}
 
 	// Open file
 	ff, err := os.Open(file)
@@ -67,10 +92,11 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 					}
 				}
 				thisSeq.Sequence = builder.String()
-	            log.Infof("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
+				log.Debugf("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
 			}
 			// (re)Initialise sequence reading machinery
 			thisSeq = NewSequence(line)
+			thisSeq.FastaFile = fasta
 			seqs = append(seqs, thisSeq)
 			seqLines = []string{}
 		} else {
@@ -89,7 +115,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 		}
 	}
 	thisSeq.Sequence = builder.String()
-	log.Infof("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
+	log.Debugf("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
 
 	return seqs, nil
 }

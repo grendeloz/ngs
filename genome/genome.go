@@ -5,8 +5,8 @@ import (
 	"encoding/gob"
 	"os"
 
-	"github.com/grendeloz/runp"
 	"github.com/google/uuid"
+	"github.com/grendeloz/runp"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -30,29 +30,6 @@ func NewGenome(name string) *Genome {
 		UUID:       uuid.String(),
 		Provenance: prov,
 	}
-}
-
-type Sequence struct {
-	Header    string
-	Sequence  string
-	FastaFile string
-	FileMD5   string
-}
-
-func NewSequence(header string) *Sequence {
-	return &Sequence{Header: header}
-}
-
-func (s *Sequence) Length() int {
-    return len(s.Sequence)
-}
-
-// FastaFile must be uniquely identifiable so we can be sure in future
-// that FASTA files match the FASTA files used to create Genomes,
-// especially when Genomes have been serialised to disk.
-type FastaFile struct {
-	Name string
-	MD5  string
 }
 
 // AddProvenance creates a new RunParameter and adds it onto the front
@@ -96,33 +73,19 @@ func (g *Genome) NewSeed(seed string) (*Seed, error) {
 }
 
 func (g *Genome) AddFastaFile(file string) error {
-	// Every FASTA file must be MD5 summed as part of the reading
-	// process to provide a "signature" that we can use in future to
-	// match FASTA files against serialised derived structures such as
-	// Genome and Seed.
-	md5, err := Md5sum(file)
-	if err != nil {
-		return err
-	}
-
 	// Retrieve *Sequences from FASTA
 	seqs, err := ParseFastaFile(file)
 	if err != nil {
 		return err
 	}
 
-	// Complete *Sequence information and add to Genome
-	for _, s := range seqs {
-		s.FastaFile = file
-		s.FileMD5 = md5
-		g.Sequences = append(g.Sequences, s)
-	}
+	// Add to Genome
+	g.Sequences = append(g.Sequences, seqs...)
 
 	// Add FASTA file to Genome
-	ff := &FastaFile{
-		Name: file,
-		MD5:  md5}
-	g.FastaFiles = append(g.FastaFiles, ff)
+	if len(seqs) > 0 {
+		g.FastaFiles = append(g.FastaFiles, seqs[0].FastaFile)
+	}
 
 	return nil
 }
