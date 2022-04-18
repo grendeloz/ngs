@@ -1,4 +1,3 @@
-// package header processes comments from the start of a text file.
 package genome
 
 import (
