@@ -33,3 +33,20 @@ func TestFastaDefaults(t *testing.T) {
 		t.Fatalf(`Genome sequence count should be %d but is %d`, e1, g1)
 	}
 }
+
+// TestParseFastaFile
+func TestParseFastaFile(t *testing.T) {
+	file := "testdata/GRCh37_test.fa.gz"
+
+	// Check
+	seqs, err := ParseFastaFile(file)
+	if err != nil {
+		t.Fatalf(`ParseFastFile on %s failed: %v`, file, err)
+	}
+
+	e1 := 27
+	g1 := len(seqs)
+	if e1 != g1 {
+		t.Fatalf(`Genome sequence count should be %d but is %d`, e1, g1)
+	}
+}

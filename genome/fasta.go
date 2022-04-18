@@ -67,7 +67,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 					}
 				}
 				thisSeq.Sequence = builder.String()
-				log.Infof("  found sequence: %s %d", thisSeq.Header, thisSeq.Length())
+	            log.Infof("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
 			}
 			// (re)Initialise sequence reading machinery
 			thisSeq = NewSequence(line)
@@ -89,6 +89,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 		}
 	}
 	thisSeq.Sequence = builder.String()
+	log.Infof("  found sequence: (%d) %s", thisSeq.Length(), thisSeq.Header)
 
 	return seqs, nil
 }
