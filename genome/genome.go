@@ -100,7 +100,7 @@ func (g *Genome) GetSequence(seqName string) (*Sequence, error) {
 			return s, nil
 		}
 	}
-	return nil, fmt.Errorf("Sequence %s not found", seqName)
+	return nil, fmt.Errorf("Sequence %s not found in genome %s", seqName, g.Name)
 }
 
 // WriteAsGob serialises a genome to disk. The caller can specify the
