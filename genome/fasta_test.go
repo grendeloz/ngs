@@ -62,7 +62,7 @@ func TestParseFastaFile(t *testing.T) {
 		t.Fatalf(`seq 26 (chrMT) length incorrect - should not be %d but is %d`, e3, g3)
 	}
 
-	e7 := `chr1 | 70000 leading bases deleted`
+	e7 := `>chr1 | 70000 leading bases deleted`
 	g7 := seqs[0].Header
 	if e7 != g7 {
 		t.Fatalf(`seq 0 Header incorrect - should be %v but is %v`, e7, g7)
@@ -86,7 +86,7 @@ func TestParseFastaFile(t *testing.T) {
 		t.Fatalf(`seq 0 sequence incorrect - should be %v but is %v`, e6, g6)
 	}
 
-	e11 := `chr21 | 9450000 leading bases deleted (135000 lines)`
+	e11 := `>chr21 | 9450000 leading bases deleted (135000 lines)`
 	g11 := seqs[20].Header
 	if e11 != g11 {
 		t.Fatalf(`seq 20 Header incorrect - should be %v but is %v`, e11, g11)
@@ -98,7 +98,7 @@ func TestParseFastaFile(t *testing.T) {
 		t.Fatalf(`seq 20 sequence incorrect - should be %v but is %v`, e10, g10)
 	}
 
-	e20 := `chrMT`
+	e20 := `>chrMT`
 	g20 := seqs[26].Header
 	if e20 != g20 {
 		t.Fatalf(`seq 26 Header incorrect - should be %v but is %v`, e20, g20)

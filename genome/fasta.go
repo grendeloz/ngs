@@ -79,7 +79,6 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 	for scanner.Scan() {
 		line := strings.TrimSuffix(scanner.Text(), "\n")
 		if rex.MatchString(line) {
-			line = strings.TrimPrefix(line, ">")
 			// If not the first sequence, save to seqs
 			if len(seqs) != 0 {
 				// Use strings pkg to efficiently concatenate (potentially)

@@ -3,6 +3,7 @@ package genome
 import (
 	"bufio"
 	"encoding/gob"
+	"fmt"
 	"os"
 
 	"github.com/google/uuid"
@@ -88,6 +89,18 @@ func (g *Genome) AddFastaFile(file string) error {
 	}
 
 	return nil
+}
+
+// GetSequence returns a *Sequence or an error if the named sequence is
+// not found. Note that the match is exact so case, spaces etc all
+// matter - perfect match or no match.
+func (g *Genome) GetSequence(seqName string) (*Sequence, error) {
+	for _, s := range g.Sequences {
+		if seqName == s.Name {
+			return s, nil
+		}
+	}
+	return nil, fmt.Errorf("Sequence %s not found", seqName)
 }
 
 // WriteAsGob serialises a genome to disk. The caller can specify the
