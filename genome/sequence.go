@@ -38,7 +38,7 @@ func NewSequence(header string) *Sequence {
 	header = strings.TrimLeft(header, " >")
 	header = strings.TrimSpace(header)
 
-	re := regexp.MustCompile(`(\w+)([ |]*)(.*)`)
+	re := regexp.MustCompile(`([^ \t]+)([ |]*)(.*)`)
 	matches := re.FindStringSubmatch(header)
 	switch len(matches) {
 	case 2:
