@@ -21,6 +21,7 @@ type Genome struct {
 	Sequences  []*Sequence
 	FastaFiles []*FastaFile
 	Provenance []runp.RunParameters
+	Version    string
 }
 
 func NewGenome(name string) *Genome {
@@ -30,6 +31,7 @@ func NewGenome(name string) *Genome {
 		Name:       name,
 		UUID:       uuid.String(),
 		Provenance: prov,
+		Version:    `0.1.0`,
 	}
 }
 
@@ -104,8 +106,8 @@ func (g *Genome) GetSequence(seqName string) (*Sequence, error) {
 }
 
 // WriteAsGob serialises a genome to disk. The caller can specify the
-// stem of the output filename but the pkg appends some identifying
-// information.
+// stem of the output filename but some identifying information is
+// appended including the UUID. The filename is returned.
 func (g *Genome) WriteAsGob(filestem string) (string, error) {
 	file := filestem + "." + g.UUID + ".genome.gob"
 
