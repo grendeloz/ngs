@@ -139,3 +139,51 @@ func TestSubSequence(t *testing.T) {
 		t.Fatalf(`SubSequence 9,10 should have failed but instead returned: %v`, g8)
 	}
 }
+
+func TestWithinLimits(t *testing.T) {
+	h1 := `>chrJP | my test seq`
+	s1 := NewSequence(h1)
+	s1.Sequence = `ACGTTGCA`
+
+	e1 := 1
+	g1, ok := s1.WithinLimits(0)
+	if ok != false || e1 != g1 {
+		t.Fatalf(`WithinLimits(0) should have returned (%v,%v) but returned: (%v,%v)`,
+			e1, false, g1, ok)
+	}
+
+	e2 := 8
+	g2, ok := s1.WithinLimits(99)
+	if ok != false || e2 != g2 {
+		t.Fatalf(`WithinLimits(99) should have returned (%v,%v) but returned: (%v,%v)`,
+			e2, false, g2, ok)
+	}
+
+	e3 := 8
+	g3, ok := s1.WithinLimits(8)
+	if ok != true || e3 != g3 {
+		t.Fatalf(`WithinLimits(8) should have returned (%v,%v) but returned: (%v,%v)`,
+			e3, false, g3, ok)
+	}
+
+	e4 := 1
+	g4, ok := s1.WithinLimits(1)
+	if ok != true || e4 != g4 {
+		t.Fatalf(`WithinLimits(1) should have returned (%v,%v) but returned: (%v,%v)`,
+			e4, false, g4, ok)
+	}
+
+	e5 := 1
+	g5, ok := s1.WithinLimits(-1)
+	if ok != false || e5 != g5 {
+		t.Fatalf(`WithinLimits(-1) should have returned (%v,%v) but returned: (%v,%v)`,
+			e5, false, g5, ok)
+	}
+
+	e6 := 7
+	g6, ok := s1.WithinLimits(7)
+	if ok != true || e6 != g6 {
+		t.Fatalf(`WithinLimits(1) should have returned (%v,%v) but returned: (%v,%v)`,
+			e6, false, g6, ok)
+	}
+}
