@@ -236,7 +236,7 @@ func (gs *Seed) WriteAsText(dir string) (string, error) {
 		"# GenomeUUID: " + gs.genomeUUID + "\n"
 	_, err = w.WriteString(maskheader)
 	if err != nil {
-		return file, fmt.Errorf("error writing to locations text file: %s", maskheader)
+		return file, fmt.Errorf("genome.Seed.WriteAsText: error writing header to %s: %w", maskheader, err)
 	}
 
 	// Write offsets - these are needed to interpret seed locations.
@@ -254,7 +254,7 @@ func (gs *Seed) WriteAsText(dir string) (string, error) {
 		offset := fmt.Sprintf("# Offset,%s,%d\n", s, i)
 		_, err := w.WriteString(offset)
 		if err != nil {
-			return file, fmt.Errorf("error writing offset to text file: %v", err)
+			return file, fmt.Errorf("genome.Seed.WriteAsText: error writing offset %d: %w", i, err)
 		}
 	}
 
@@ -279,7 +279,7 @@ func (gs *Seed) WriteAsText(dir string) (string, error) {
 		// Write it all out
 		_, err := w.WriteString(b.String() + "\n")
 		if err != nil {
-			return file, fmt.Errorf("error writing mask to text file: %s", b.String())
+			return file, fmt.Errorf("genome.Seed.WriteAsText: error writing seed %s: %w", b.String(), err)
 		}
 	}
 

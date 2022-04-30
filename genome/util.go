@@ -15,13 +15,13 @@ func Md5sum(file string) (string, error) {
 	var chk string
 	f, err := os.Open(file)
 	if err != nil {
-		return chk, err
+		return "", fmt.Errorf("genome.Md5sum: os.Open: %w", err)
 	}
 	defer f.Close()
 
 	h := md5.New()
 	if _, err := io.Copy(h, f); err != nil {
-		return chk, err
+		return "", fmt.Errorf("genome.Md5sum: io.Copy: %w", err)
 	}
 
 	chk = fmt.Sprintf("%x", h.Sum(nil))
@@ -35,7 +35,7 @@ func LinesFromFile(file string) ([]string, error) {
 	// Open file
 	ff, err := os.Open(file)
 	if err != nil {
-		return lines, err
+		return nil, fmt.Errorf("genome.LinesFromFile: os.Open: %w", err)
 	}
 	defer ff.Close()
 

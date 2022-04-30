@@ -110,16 +110,16 @@ func (s *Sequence) SubSequence(start, end int) (string, error) {
 	// us to do the conversion.
 	switch {
 	case start < 1:
-		return "", fmt.Errorf("SubSequence: start cannot be less than 1: %d", start)
+		return "", fmt.Errorf("genome.Sequence.SubSequence: start cannot be less than 1: %d", start)
 	case end > len(s.Sequence):
-		return "", fmt.Errorf("SubSequence: end cannot be beyond the end of the sequence: %d", end)
+		return "", fmt.Errorf("genome.Sequence.SubSequence: end cannot be beyond the end of the sequence: %d", end)
 	case start > len(s.Sequence):
-		return "", fmt.Errorf("SubSequence: start cannot be beyond the end of the sequence: %d", start)
+		return "", fmt.Errorf("genome.Sequence.SubSequence: start cannot be beyond the end of the sequence: %d", start)
 	case end == 0:
 		// must come before start>end case
 		end = len(s.Sequence)
 	case start > end:
-		return "", fmt.Errorf("SubSequence: start cannot be > end: %d", start)
+		return "", fmt.Errorf("genome.Sequence.SubSequence: start cannot be > end: %d", start)
 	}
 	// Convert from 1-based closed sequence coords
 	//           to 0-based half-open go string coords ...

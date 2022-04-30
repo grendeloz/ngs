@@ -65,7 +65,7 @@ func (g *Genome) NewSeed(seed string) (*Seed, error) {
 		log.Infof("  adding sequence %s to Seed", s.Header)
 		err := gs.addSequence(s)
 		if err != nil {
-			return gs, err
+			return gs, fmt.Errorf("genome.Genome.NewSeed: %w", err)
 		}
 	}
 
@@ -79,7 +79,7 @@ func (g *Genome) AddFastaFile(file string) error {
 	// Retrieve *Sequences from FASTA
 	seqs, err := ParseFastaFile(file)
 	if err != nil {
-		return err
+		return fmt.Errorf("genome.Genome.AddFastaFile: %w", err)
 	}
 
 	// Add to Genome

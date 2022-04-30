@@ -32,7 +32,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 	// Genome and Seed.
 	md5, err := Md5sum(file)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("genome.ParseFastaFile: %w", err)
 	}
 
 	fasta := &FastaFile{
@@ -42,7 +42,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 	// Open file
 	ff, err := os.Open(file)
 	if err != nil {
-		return seqs, err
+		return nil, fmt.Errorf("genome.ParseFastaFile: os.Open: %w", err)
 	}
 	defer ff.Close()
 
@@ -52,13 +52,13 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 	// Based on file extension, handle gzip files
 	found, err := regexp.MatchString(`\.[gG][zZ]$`, file)
 	if err != nil {
-		return seqs, fmt.Errorf("error matching gzip file pattern against %s: %w", file, err)
+		return seqs, fmt.Errorf("genome.ParseFastaFile: error matching gzip file pattern against %s: %w", file, err)
 	}
 	if found {
 		// For gzip files, put a gzip.Reader into the chain
 		reader, err := gzip.NewReader(ff)
 		if err != nil {
-			return seqs, fmt.Errorf("error opening gzip file %s: %w", file, err)
+			return seqs, fmt.Errorf("genome.ParseFastaFile: error opening gzip file %s: %w", file, err)
 		}
 		defer reader.Close()
 		scanner = bufio.NewScanner(reader)
@@ -87,7 +87,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 				for _, s := range seqLines {
 					_, err := builder.WriteString(s)
 					if err != nil {
-						return seqs, fmt.Errorf("error building sequence string: %w", err)
+						return seqs, fmt.Errorf("genome.ParseFastaFile: error building sequence string: %w", err)
 					}
 				}
 				thisSeq.Sequence = builder.String()
@@ -110,7 +110,7 @@ func ParseFastaFile(file string) ([]*Sequence, error) {
 	for _, s := range seqLines {
 		_, err := builder.WriteString(s)
 		if err != nil {
-			return seqs, fmt.Errorf("error building sequence string: %w", err)
+			return seqs, fmt.Errorf("genome.ParseFastaFile: error building sequence string: %w", err)
 		}
 	}
 	thisSeq.Sequence = builder.String()
