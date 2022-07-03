@@ -537,8 +537,9 @@ func MergeFeatures(f1, f2 *Features) *Features {
 
 	var seqids []string
 	for seqid, fs := range seqs {
-		log.Infof("  seq:%v fcount:%d", seqid, len(fs.Features))
+		log.Infof("  pre-sort  seq:%v fcount:%d", seqid, len(fs.Features))
 		fs.Sort()
+		log.Infof("  post-sort seq:%v fcount:%d", seqid, len(fs.Features))
 		fs.PrudentMergeByType()
 		seqids = append(seqids, seqid)
 	}
