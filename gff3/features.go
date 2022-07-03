@@ -444,13 +444,11 @@ func (fs *Features) PrudentMergeByType() error {
 			break
 		}
 
-		log.Infof("PrudentMergeByType - len(candidates):%d", len(candidates))
-
 		// A and B are always the first 2 Feature in Candidates.
 		A := candidates[0]
 		B := candidates[1]
 
-		log.Infof("PrudentMergeByType - len(candidates):%d A:%+v B:%+v", len(candidates), A, B)
+		log.Infof("    PrudentMergeByType - len(candidates):%d\n      A:%+v\n      B:%+v", len(candidates), A, B)
 
 		// Check SeqId
 		if A.SeqId != B.SeqId {
@@ -535,6 +533,7 @@ func MergeFeatures(f1, f2 *Features) *Features {
 
 	var seqids []string
 	for seqid, fs := range seqs {
+		log.Infof("  seq:%v fcount:%d", seqid, len(fs.Features))
 		fs.Sort()
 		fs.PrudentMergeByType()
 		seqids = append(seqids, seqid)
