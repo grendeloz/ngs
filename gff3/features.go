@@ -8,6 +8,8 @@ import (
 
 	"github.com/grendeloz/interval"
 	"github.com/grendeloz/ngs/selector"
+
+	log "github.com/sirupsen/logrus"
 )
 
 // Features is a collection of Features based on some property
@@ -199,7 +201,7 @@ func (fs *Features) Clone() *Features {
 	nfs.IsSorted = fs.IsSorted
 
 	for _, ogf := range fs.Features {
-        // I did try a gob encode/decode here and it was 7x slower!
+		// I did try a gob encode/decode here and it was 7x slower!
 		nf := ogf.Clone()
 		nfs.Features = append(nfs.Features, nf)
 	}
@@ -524,6 +526,9 @@ func MergeFeatures(f1, f2 *Features) *Features {
 	tfs := NewFeatures()
 	tfs.Features = append(A.Features, B.Features...)
 	seqs := tfs.BySeqId()
+	log.Infof("MergeFeatures - feats(A):%d feats(B):%d seqs:%d",
+		len(A.Features), len(B.Features), len(seqs))
+
 	var seqids []string
 	for seqid, fs := range seqs {
 		fs.Sort()
