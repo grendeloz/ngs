@@ -9,7 +9,7 @@ import (
 	"github.com/grendeloz/interval"
 	"github.com/grendeloz/ngs/selector"
 
-	log "github.com/sirupsen/logrus"
+	//log "github.com/sirupsen/logrus"
 )
 
 // Features is a collection of Features based on some property
@@ -434,7 +434,7 @@ func (fs *Features) PrudentMergeByType() error {
 	var keepers, candidates []*Feature
 	candidates = append(candidates, fs.Features...)
 
-	log.Infof("    len(feats):%v len(candidates):%v", len(fs.Features), len(candidates))
+	//log.Infof("    len(feats):%v len(candidates):%v", len(fs.Features), len(candidates))
 
 	for {
 		// If we have exhausted the candidates or we are down to the last
@@ -450,9 +450,9 @@ func (fs *Features) PrudentMergeByType() error {
 		A := candidates[0]
 		B := candidates[1]
 
-		log.Infof("    PrudentMergeByType - len(candidates):%d", len(candidates))
-		log.Infof("      A:%+v", A)
-		log.Infof("      B:%+v", B)
+		//log.Infof("    PrudentMergeByType - len(candidates):%d", len(candidates))
+		//log.Infof("      A:%+v", A)
+		//log.Infof("      B:%+v", B)
 
 		// Check SeqId
 		if A.SeqId != B.SeqId {
@@ -532,21 +532,21 @@ func MergeFeatures(f1, f2 *Features) *Features {
 	tfs := NewFeatures()
 	tfs.Features = append(A.Features, B.Features...)
 	seqs := tfs.BySeqId()
-	log.Infof("MergeFeatures - feats(A):%d feats(B):%d seqs:%d",
-		len(A.Features), len(B.Features), len(seqs))
+	//log.Infof("MergeFeatures - feats(A):%d feats(B):%d seqs:%d",
+	//	len(A.Features), len(B.Features), len(seqs))
 
 	var seqids []string
 	for seqid, fs := range seqs {
-		precount := len(fs.Features)
-		log.Infof("  pre-sort  seq:%v fcount:%d", seqid, precount)
+		//precount := len(fs.Features)
+		//log.Infof("  pre-sort  seq:%v fcount:%d", seqid, precount)
 		fs.Sort()
-		postcount := len(fs.Features)
-		log.Infof("  post-sort seq:%v fcount:%d", seqid, postcount)
-		if precount != postcount {
-			for i := 0; i < postcount-precount+2; i++ {
-				log.Infof("    %d %+v", i, fs.Features[i])
-			}
-		}
+		//postcount := len(fs.Features)
+		//log.Infof("  post-sort seq:%v fcount:%d", seqid, postcount)
+		//if precount != postcount {
+		//	for i := 0; i < postcount-precount+2; i++ {
+		//		log.Infof("    %d %+v", i, fs.Features[i])
+		//	}
+		//}
 		fs.PrudentMergeByType()
 		seqids = append(seqids, seqid)
 	}
@@ -629,7 +629,13 @@ func (fs *Features) simpleSort() {
 }
 
 // simpleSort2 is a derivative of simpleSort but it tries to sort by
-// start and then by end within start. N.B. there is a bug of some sort in
+// start and then by end within start.
+//
+// *** WARNING!!! - DO NOT USE THIS ROUTINE ***
+//
+// There seems to be a bug in the end-sorting logic that introduces
+// empty records which breaks a lot of downstream routines. This routine
+// should not be used until the bug is sorted out.
 func (fs *Features) simpleSort2() {
 	// Walk *Feature slice putting them into the map by start position
 	sorter := make(map[int][]*Feature)
