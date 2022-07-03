@@ -1,5 +1,3 @@
-module github.com/grendeloz/ngs/gff3
+module github.com/grendeloz/ngs/selector
 
 go 1.17
-
-require github.com/grendeloz/interval v1.1.0
