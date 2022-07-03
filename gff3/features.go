@@ -448,7 +448,9 @@ func (fs *Features) PrudentMergeByType() error {
 		A := candidates[0]
 		B := candidates[1]
 
-		log.Infof("    PrudentMergeByType - len(candidates):%d\n      A:%+v\n      B:%+v", len(candidates), A, B)
+		log.Infof("    PrudentMergeByType - len(candidates):%d", len(candidates))
+		log.Infof("      A:%+v\n", A)
+		log.Infof("      B:%+v\n", B)
 
 		// Check SeqId
 		if A.SeqId != B.SeqId {
