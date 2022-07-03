@@ -600,13 +600,37 @@ func insertFeatures(fs1 []*Feature, fs2 ...*Feature) []*Feature {
 //
 // We are going to use a map to do our sorting. Once all Features have
 // been placed into the map by start position, the observed starts
-// are sorted and the map is walked doing by-End sorting for any cases
-// where there are multiple Features with the same start position.
-//
-// TO DO - we do not seem to be using the by-end sorting anywhere so we
-// should think about whether we should keep this logic. It adds
-// computational cost possibly without adding value.
+// are sorted and the map is walked.
 func (fs *Features) simpleSort() {
+	// Walk *Feature slice putting them into the map by start position
+	sorter := make(map[int][]*Feature)
+	for i := 0; i < len(fs.Features); i++ {
+		start := int(fs.Features[i].Start)
+		if _, ok := sorter[start]; !ok {
+			sorter[start] = []*Feature{}
+		}
+		sorter[start] = append(sorter[start], fs.Features[i])
+	}
+
+	// Sort the starts
+	var starts []int
+	for k, _ := range sorter {
+		starts = append(starts, k)
+	}
+	sort.Ints(starts)
+
+	// Walk the map by start
+	var sorted []*Feature
+	for _, start := range starts {
+		sorted = append(sorted, sorter[start]...)
+	}
+
+	fs.Features = sorted
+}
+
+// simpleSort2 is a derivative of simpleSort but it tries to sort by
+// start and then by end within start. N.B. there is a bug of some sort in
+func (fs *Features) simpleSort2() {
 	// Walk *Feature slice putting them into the map by start position
 	sorter := make(map[int][]*Feature)
 	for i := 0; i < len(fs.Features); i++ {
