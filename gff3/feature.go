@@ -354,7 +354,7 @@ func PrudentMerge(a, b *Feature) ([]*Feature, error) {
 		// 2 Features - overlap, 'B
 		O := newOverlapFeature(A, B)
 		O.Start = A.Start
-		O.End = B.Start
+		O.End = A.End
 		B.Start = A.End
 		nfs = append(nfs, O, B)
 	} else if allen == interval.ContainsB {
