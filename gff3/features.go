@@ -615,8 +615,8 @@ func (fs *Features) simpleSort() {
 	var sorted []*Feature
 
 	// Sort the starts
-	starts := []int{}
-	for k := range sorter {
+	var starts []int
+	for k, _ := range sorter {
 		starts = append(starts, k)
 	}
 	sort.Ints(starts)
@@ -637,8 +637,8 @@ func (fs *Features) simpleSort() {
 			}
 
 			// Order the ends
-			ends := []int{}
-			for k := range endSorter {
+			var ends []int
+			for k, _ := range endSorter {
 				ends = append(ends, k)
 			}
 			sort.Ints(ends)
