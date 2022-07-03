@@ -544,7 +544,7 @@ func MergeFeatures(f1, f2 *Features) *Features {
 		log.Infof("  post-sort seq:%v fcount:%d", seqid, postcount)
 		if precount != postcount {
 			for i := 0; i < postcount-precount+2; i++ {
-				log.Infof("    %d %+v", i, fd.Features[i])
+				log.Infof("    %d %+v", i, fs.Features[i])
 			}
 		}
 		fs.PrudentMergeByType()
