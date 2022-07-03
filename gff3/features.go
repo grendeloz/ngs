@@ -434,6 +434,8 @@ func (fs *Features) PrudentMergeByType() error {
 	var keepers, candidates []*Feature
 	candidates = append(candidates, fs.Features...)
 
+	log.Infof("    len(feats):%v len(candidates):%v", len(fs.Features), len(candidates))
+
 	for {
 		// If we have exhausted the candidates or we are down to the last
 		// one then we are finished
