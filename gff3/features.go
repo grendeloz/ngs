@@ -692,7 +692,7 @@ func (fs *Features) simpleSort2() {
 	fs.Features = sorted
 }
 
-// Sum Intervals adds the lengths of all of the Feature within *Features.
+// SumIntervals adds the lengths of all of the Feature within *Features.
 func (fs *Features) SumIntervals() int {
 	var total int
 	for _, f := range fs.Features {
@@ -701,9 +701,9 @@ func (fs *Features) SumIntervals() int {
 	return total
 }
 
-// Sum Intervals adds the lengths of all of the Feature within *Features
-// but calls Consolidate first. Consolidate is called on a Clone so this
-// operation is non-destructive.
+// SumConsolidatedIntervals adds the lengths of all of the Feature within
+// *Features but calls Consolidate first. Consolidate is called on a Clone
+// so this operation is non-destructive.
 func (fs *Features) SumConsolidatedIntervals() (int, error) {
 	nfs := fs.Clone()
 	err := nfs.Consolidate()

@@ -122,6 +122,6 @@ func (s *Sequence) SubSequence(start, end int) (string, error) {
 		return "", fmt.Errorf("genome.Sequence.SubSequence: start cannot be > end: %d", start)
 	}
 	// Convert from 1-based closed sequence coords
-	//           to 0-based half-open go string coords ...
+	//           to 0-based half-open go substring coords ...
 	return s.Sequence[start-1 : end], nil
 }
