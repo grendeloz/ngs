@@ -14,7 +14,8 @@ type Sequence struct {
 	Header string
 
 	// Regardless of the format of the Header line, the sequence Name is
-	// always the first string.
+	// always the start of the Header string up to the first space or
+	// pipe symbol "|".
 	Name string
 
 	// If the Header line contains more that just the sequence Name,
@@ -66,11 +67,11 @@ func (s *Sequence) Length() int {
 // limit is returned and the bool is set to false. It might
 // be used like this:
 //
-//   t := 16569
-//   l, ok := s.WithinLimit(t)
-//   if ! ok {
-//       fmt.Println("Position %d is beyond sequence limits: %d", t, l)
-//   }
+//	t := 16569
+//	l, ok := s.WithinLimit(t)
+//	if ! ok {
+//	    fmt.Println("Position %d is beyond sequence limits: %d", t, l)
+//	}
 //
 // WithinLimits assumes sequences are 1-based closed intervals, i.e.
 // a sequence with 10 bases starts at 1 and ends at 10. For this 10bp
@@ -96,13 +97,13 @@ func (s *Sequence) WithinLimits(t int) (int, bool) {
 // Given a sequence ACGTTGCA, this list shows what would be returned if
 // we were to call SubSequence with the start,end values:
 //
-//   1,4 : ACGT - 4-base sequence from the 1st to 4th base inclusive.
-//   0,4 : error, start cannot be less than 1
-//   1,8 : ACGTTGCA - returns the entire sequence
-//   1,0 : ACGTTGCA - returns the entire sequence, special case
-//   1,9 : error - end cannot be > length(sequence)
-//   4,3 : error - start cannot be > end
-//   5,5 : T - returns a single base
+//	1,4 : ACGT - 4-base sequence from the 1st to 4th base inclusive.
+//	0,4 : error, start cannot be less than 1
+//	1,8 : ACGTTGCA - returns the entire sequence
+//	1,0 : ACGTTGCA - returns the entire sequence, special case
+//	1,9 : error - end cannot be > length(sequence)
+//	4,3 : error - start cannot be > end
+//	5,5 : T - returns a single base
 func (s *Sequence) SubSequence(start, end int) (string, error) {
 	// Note that golang substrings are 0-based half-open intervals, i.e.
 	// the start is included but the end is the first base past the end of

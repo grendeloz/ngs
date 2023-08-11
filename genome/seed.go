@@ -25,22 +25,22 @@ import (
 // the source sequence would be kept in each seed and what the final
 // seed sequence would be.
 //
-//  source  ACGTACGTACGTACGTACGT
+//	source  ACGTACGTACGTACGTACGT
 //
-//  1 seed  1_1_1_1_1_1_1_1_1_1_
-//          A G A G A G A G A G   =>  AGAGAGAGAG
+//	1 seed  1_1_1_1_1_1_1_1_1_1_
+//	        A G A G A G A G A G   =>  AGAGAGAGAG
 //
-//  2 seed  11__11__11__11__11__
-//          AC  AC  AC  AC  AC    =>  ACACACACAC
+//	2 seed  11__11__11__11__11__
+//	        AC  AC  AC  AC  AC    =>  ACACACACAC
 //
-//  3 seed  ___1___1___1___1___1
-//             T   T   T   T   T  =>  TTTTT
+//	3 seed  ___1___1___1___1___1
+//	           T   T   T   T   T  =>  TTTTT
 //
-//  4 seed  11111111111111111111
-//          ACGTACGTACGTACGTACGT  =>  ACGTACGTACGTACGTACGT
+//	4 seed  11111111111111111111
+//	        ACGTACGTACGTACGTACGT  =>  ACGTACGTACGTACGTACGT
 //
-//  5 seed  1____1____1____1____
-//          A    C    G    T      =>  ACGT
+//	5 seed  1____1____1____1____
+//	        A    C    G    T      =>  ACGT
 //
 // Because a Seed is fundamentally related to the Genome from
 // which it is created, Seeds must be created via the Genome method
