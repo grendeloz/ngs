@@ -1,11 +1,12 @@
-module github.com/grendeloz/ngs/genome
+module github.com/grendeloz/ngs
 
-go 1.17
+go 1.20
 
 require (
 	github.com/google/go-cmp v0.5.9
 	github.com/google/uuid v1.3.0
-	github.com/grendeloz/runp v0.0.0-20220410013920-a2aedaa41c81
+	github.com/grendeloz/interval v1.1.0
+	github.com/grendeloz/runp v0.1.0
 	github.com/sirupsen/logrus v1.9.3
 )
 
