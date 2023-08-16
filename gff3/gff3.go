@@ -1,3 +1,4 @@
+// Package gff3 has simple functions for operating on GFF3 files.
 package gff3
 
 import (

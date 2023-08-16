@@ -1,3 +1,7 @@
+// Package selector is a trivial set of helper methods for defining
+// operation:subject:pattern triples which can be used to describe
+// filtering operations on collections of records.
+// See the README.md for more details.
 package selector
 
 import (

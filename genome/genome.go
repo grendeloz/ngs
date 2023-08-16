@@ -1,3 +1,5 @@
+// Package genome has types and functions for operating on genomics files
+// and data.
 package genome
 
 import (
