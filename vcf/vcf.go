@@ -25,9 +25,9 @@ var (
 )
 
 // Patterns for text parsing.
-var fileformatRx = regexp.MustCompile(`^##fileformat=version ([^\s]+)$`)
-var metaStructuredRx = regexp.MustCompile(`^##([^=]+)=<(.+)>`)
-var metaUnstructuredRx = regexp.MustCompile(`^##([^=]+)=([^<].*)`)
+var fileformatRx = regexp.MustCompile(`^##fileformat=(.*)$`)
+var metaStructuredRx = regexp.MustCompile(`^##([^=]+)=<(.+)>$`)
+var metaUnstructuredRx = regexp.MustCompile(`^##([^=]+)=([^<].*)$`)
 var headRx = regexp.MustCompile(`^#[^#]`)
 var gzipRx = regexp.MustCompile(`\.[gG][zZ]$`)
 
@@ -50,6 +50,7 @@ type Vcf struct {
 	Meta       *Meta
 	Header     *Header
 	Records    []*Record
+	Samples    []string
 	Fileformat string
 	mOrigStr   string
 	hOrigStr   string
@@ -57,22 +58,30 @@ type Vcf struct {
 }
 
 // String does what you would expect. It is a simple way to get a text
-// representation of the whole VCF so you can write it out but it does
-// take up a considerable amount of memory to hold the text
-// representation.
+// representation of the whole VCF so you can write it out but be aware
+// that it may take up a considerable amount of memory to create the
+// string representation while also holding the data structure.
 func (v *Vcf) String() string {
-	s := v.Meta.String() + "\n" +
-		v.Header.String() + "\n"
-	for _, r := range v.Records {
-		s = s + r.String() + "\n"
-	}
+	// lazy lazy lazy
+	s := v.mOrigStr + v.hOrigStr
+
+	// TO DO
+	// Make this work and then use the same logic in Write() so we
+	// stream the string representation to disk rather than creating a
+	// full string representation in memory and then writing it out.
+	//s := v.Meta.String() + v.Header.String()
+	//for _, r := range v.Records {
+	//	s = s + r.String() + "\n"
+	//}
+
 	return s
 }
 
 func NewVcf() *Vcf {
 	return &Vcf{Meta: NewMeta(),
 		Header:  NewHeader(),
-		Records: make([]*Record, 0, 100)}
+		Records: make([]*Record, 0, 100),
+		Samples: make([]string, 0)}
 }
 
 /*
@@ -147,43 +156,52 @@ func newFromScanner(scanner *bufio.Scanner) (*Vcf, error) {
 
 	scanner.Scan()
 	line = scanner.Text()
-	if IsMetaUnstructured(line) && IsFileformatMeta(line) {
+	//fmt.Printf("first line read: %v\n", line)
+	if IsFileformatMeta(line) {
 		m := fileformatRx.FindStringSubmatch(line)
 		vcf.Fileformat = m[1]
+
+		mb.WriteString(line)
+		mb.WriteByte('\n')
 	} else {
 		return nil, ErrNoFileformat
 	}
+
+	var mUn, mSt, h, r int
+	mUn = 1 // fileformat line
 
 	for scanner.Scan() {
 		//line := strings.TrimSuffix(scanner.Text(), "\n")
 		line = scanner.Text()
 		if metaStructuredRx.MatchString(line) {
+			mSt++
 			mb.WriteString(line)
+			mb.WriteByte('\n')
 		} else if metaUnstructuredRx.MatchString(line) {
+			mUn++
 			mb.WriteString(line)
+			mb.WriteByte('\n')
 		} else if headRx.MatchString(line) {
+			h++
 			hb.WriteString(line)
+			hb.WriteByte('\n')
 		} else {
+			r++
 			rb.WriteString(line)
+			rb.WriteByte('\n')
+			r, err := RecordFromString(line)
+			if err != nil {
+				return vcf, fmt.Errorf("problem parsing record %s: %w", line, err)
+			}
+			vcf.Records = append(vcf.Records, r)
 		}
 	}
+	fmt.Printf("line counts: mUn:%d mSt:%d Header:%d Records:%d\n", mUn, mSt, h, r)
 
 	// If there are no Meta lines then it can't be a VCF because the
 	// fileformat= meta line as the first line is mandatory.
 	if len(mb.String()) == 0 {
 		return nil, ErrNoVcfMeta
-	}
-
-	// If the very first line is not the gff3 identifier then we exit
-	// immediately. Unfortunately, some folks (Ensembl at least) seem to
-	// put an arbitrary number of spaces in as separator so we will need
-	// to use a pattern rather than a simple string equality test.
-	ok, err := regexp.Match(`^##fileformat=VCFv`, []byte(mb.String()))
-	if err != nil {
-		return nil, fmt.Errorf("newFromScanner: error matching fileformat line: %w", err)
-	}
-	if !ok {
-		return nil, fmt.Errorf("newFromScanner: mandatory fileformat= first line missing")
 	}
 
 	vcf.mOrigStr = mb.String()

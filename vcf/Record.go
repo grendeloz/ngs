@@ -1,6 +1,7 @@
 package vcf
 
 import (
+	"fmt"
 	"strconv"
 	"strings"
 )
@@ -20,12 +21,18 @@ type Record struct {
 	Info    string
 	Format  string
 	Samples []string
+
+	// We need to handle Qual and Pos differently because they will be
+	// converted from text to int/float and so if they were missing, we
+	// need to put missing (not 0) back when we write them out
+	QualMissing bool
+	PosMissing  bool
 }
 
 func (r Record) String() string {
 	var ss []string
 
-	// Append missing value for empty fields
+	// Be careful to append missing value for empty fields
 	ss = append(ss, checkMissing(r.Chrom))
 	ss = append(ss, checkMissing(strconv.Itoa(r.Pos)))
 	ss = append(ss, checkMissing(r.Id))
@@ -43,6 +50,55 @@ func (r Record) String() string {
 	}
 
 	return strings.Join(ss, "\t")
+}
+
+func RecordFromString(line string) (*Record, error) {
+	r := &Record{}
+
+	fields := strings.Split(line, "\t")
+	if len(fields) < 8 {
+		return r, fmt.Errorf("record has fewer than 8 fields: %s", line)
+	}
+
+	// Parse mandatory 8 fields
+	r.Chrom = fields[0]
+	r.Id = fields[2]
+	r.Ref = fields[3]
+	r.Alt = fields[4]
+	r.Filter = fields[6]
+	r.Info = fields[7]
+
+	// Convert POS and QUAL. Need to handle missing character!
+	if fields[1] == missing {
+		r.Pos = 0
+		r.PosMissing = true
+	} else {
+		i, err := strconv.Atoi(fields[1])
+		if err != nil {
+			return r, fmt.Errorf("cannot parse POS [%s] to int", fields[1])
+		}
+		r.Pos = i
+	}
+	if fields[5] == missing {
+		r.Qual = 0
+		r.QualMissing = true
+	} else {
+		f, err := strconv.ParseFloat(fields[5], 64)
+		if err != nil {
+			return r, fmt.Errorf("cannot parse QUAL [%s] to float", fields[5])
+		}
+		r.Qual = f
+	}
+
+	// Work out if this line contains genotypes in which case there
+	// should also be a FORMAT field and one or more samples.
+
+	if len(fields) > 8 {
+		r.Format = fields[8]
+		r.Samples = fields[9:]
+	}
+
+	return r, nil
 }
 
 func checkMissing(v string) string {
