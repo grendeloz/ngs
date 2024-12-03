@@ -10,6 +10,16 @@ Changes since v0.2.0
 - Changed to a single module at the root of the repo - the old model of
 having multiple packages, each as a separate module, was awkward and was
 causing needless trouble.
+- Complete reorganisation of the ngs package which introduced a very
+large number of breaking changes. Too many to sensibly list - you should
+consider this release of ngs to be a whole new package.
+ - Handling of both FASTA and FASTQ files completely refactored to be
+ more consistent and more efficient. 
+ - Completely revised (and renamed) the record types for FASTA and
+ FASTQ.
+ - Sequence type is now a simple standalone type for sequence
+ manipulation. Functions are provided to create Sequence from FastaRec
+ and FastqRec types.
 
 ### Additions
 

@@ -33,14 +33,14 @@ func TestFastaDefaults(t *testing.T) {
 	}
 }
 
-// TestParseFastaFile
-func TestParseFastaFile(t *testing.T) {
+// TestOpenFastaFile
+func TestOpenFastaFile(t *testing.T) {
 	file := "testdata/GRCh37_test.fa.gz"
 
 	// Check
-	seqs, err := ParseFastaFile(file)
+	seqs, err := OpenFastaFile(file)
 	if err != nil {
-		t.Fatalf(`ParseFastaFile on %s failed: %v`, file, err)
+		t.Fatalf(`OpenFastaFile on %s failed: %v`, file, err)
 	}
 
 	e1 := 27

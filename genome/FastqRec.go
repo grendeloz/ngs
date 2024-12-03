@@ -5,14 +5,13 @@ import (
 	"strings"
 )
 
-type Read struct {
-	// Id is the string that appears as the first line of a 4-line read.
-	// In a file, the Id must start with a "@" character which is
-	// removed for the Id field here in Read. The Id may consist of a
-	// single "word" or it may contain spaces which separate multiple
-	// words. The third line of a read must start with a "+" character
-	// and then may either be empty or repeat the Id (without the leading
-	// "@").
+type FastqRec struct {
+	// Id is the string that appears as the first line of a 4-line record.
+	// In a FASTQ file, the Id must start with a "@" character but it is
+	// removed here. The Id may consist of a single "word" or it may
+	// contain spaces which separate multiple words. The third line of a
+	// record must start with a "+" character and then may be either
+	// empty or repeat the Id (without the leading "@").
 	Id string
 
 	// The base sequence.
@@ -24,21 +23,21 @@ type Read struct {
 	Qualities []byte
 }
 
-// NewRead returns an empty Read.
-func NewRead() *Read {
-	r := Read{}
+// NewFastqRec returns an empty FastqRec.
+func NewFastqRec() *FastqRec {
+	r := FastqRec{}
 	r.Bases = make([]byte, 0)
 	r.Qualities = make([]byte, 0)
 	return &r
 }
 
-// NewReadFromString assumes that a string with 4 newline-terminated
+// FastqRecFromString assumes that a string with 4 newline-terminated
 // lines will be supplied.
-func NewReadFromString(s string) (*Read, error) {
-	r := &Read{}
+func FastqRecFromString(s string) (*FastqRec, error) {
+	r := NewFastqRec()
 	lines := strings.Split(s, "\n")
 	if len(lines) < 4 {
-		return r, fmt.Errorf("a read has 4 lines, input string has: %d", len(lines))
+		return r, fmt.Errorf("a FASTQ record has 4 lines, input string has: %d", len(lines))
 	}
 
 	// Parse Id
@@ -62,27 +61,27 @@ func NewReadFromString(s string) (*Read, error) {
 	return r, nil
 }
 
-func (r *Read) SetBasesFromString(s string) {
+func (r *FastqRec) SetBasesFromString(s string) {
 	r.Bases = []byte(s)
 }
 
-func (r *Read) SetQualitiesFromString(s string) {
+func (r *FastqRec) SetQualitiesFromString(s string) {
 	r.Qualities = []byte(s)
 }
 
-// CheckValid checks that a Read has an Id and that the count of Bases
-// and Qualities is the same. Note that a Read with no Bases and no
+// CheckValid checks that a Record has an Id and that the count of Bases
+// and Qualities is the same. Note that a Record with no Bases and no
 // Qualities is considered valid.
-func (r *Read) CheckValid() error {
+func (r *FastqRec) CheckValid() error {
 	if len(r.Bases) != len(r.Qualities) {
 		return fmt.Errorf("base and quality score counts do not match for read: %s", r.Id)
 	}
 	return nil
 }
 
-// String returns a 4-line string representation of the Read with "\n"
+// String returns a 4-line string representation of the Record with "\n"
 // as the line-ending and "+" by itself for line 3.
-func (r *Read) String() string {
+func (r *FastqRec) String() string {
 	var builder strings.Builder
 	var pieces []string
 

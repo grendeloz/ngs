@@ -18,15 +18,15 @@ NCATCGTCCGGTATGTAGAACAGGGGAACCGGACGTTTTCCAAGGCGTAGCCATGTTAGACAAGGCGCAGATATAGGTGA
 #4=DBDDDHFHFFHIGHIIIJJJJJJJJJJJJBHDAGHJGGGHIJHFFFFDDEDCCDCCCCDDDDDBDBD>CDEE>C@CD
 `
 
-func TestNewRead(t *testing.T) {
-	r1, err := NewReadFromString(read1)
+func TestNewFastqRec(t *testing.T) {
+	r1, err := FastqRecFromString(read1)
 	if err != nil {
-		t.Fatalf(`NewReadFromString() failed: %v`, err)
+		t.Fatalf(`FastqRecFromString() failed: %v`, err)
 	}
 
-	r2, err := NewReadFromString(read2)
+	r2, err := FastqRecFromString(read2)
 	if err != nil {
-		t.Fatalf(`NewReadFromString() failed: %v`, err)
+		t.Fatalf(`FastqRecFromString() failed: %v`, err)
 	}
 
 	tests := []struct {

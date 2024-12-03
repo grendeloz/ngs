@@ -47,7 +47,7 @@ import (
 // NewSeed.
 type Seed struct {
 	Mask       string // e.g. 11_1_1
-	Sequences  []*Sequence
+	Sequences  []*FastaRec
 	Offsets    map[string]int
 	Sequence   []byte
 	Coords     map[string][]int
@@ -129,21 +129,21 @@ func SeedFromGob(file string) (*Seed, error) {
 
 // addSequence is a private function that only works to copy relevant
 // pieces of a Sequence from a Genome to a Seed.
-func (gs *Seed) addSequence(s *Sequence) error {
+func (gs *Seed) addSequence(f *FastaRec) error {
 	ns := Sequence{}
 
 	// Note that Seed *Sequence do not hold the sequence bases -
 	// these are in Seed.Sequence with Seed.Offsets
 	// identifying where each Sequence starts and ends.
-	ns.Header = s.Header
-	ns.FastaFile = s.FastaFile
+	ns.Header = f.Header
+	ns.FastaFile = f.FastaFile
 
 	// End of the current Seed sequence
 	offset := len(gs.Sequence)
 
 	gs.Offsets[s.Header] = offset
 	gs.Sequences = append(gs.Sequences, &ns)
-	gs.Sequence = append(gs.Sequence, []byte(s.Sequence)...)
+	gs.Sequence = append(gs.Sequence, []byte(f.Sequence)...)
 
 	return nil
 }

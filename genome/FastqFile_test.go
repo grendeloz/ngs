@@ -4,14 +4,14 @@ import (
 	"testing"
 )
 
-// TestParseFastqFile
-func TestParseFastqFile(t *testing.T) {
+func TestOpenFastqFile(t *testing.T) {
 	type test struct {
 		Id   string
 		Seq  string
 		Qual string
 	}
 
+	// Records that are found in testdata/test1.fq
 	tests := []test{
 		{"@read1",
 			"ACGTCCAGCCACGTCCAGCCGACTCGGCGA",
@@ -27,9 +27,9 @@ func TestParseFastqFile(t *testing.T) {
 	file := "testdata/test1.fq"
 
 	// Check that FastqFile initialises
-	ff, err := NewFastqFile(file)
+	ff, err := OpenFastqFile(file)
 	if err != nil {
-		t.Fatalf(`NewFastqFile on %s failed: %v`, file, err)
+		t.Fatalf(`OpenFastqFile on %s failed: %v`, file, err)
 	}
 
 	// Check header

@@ -13,14 +13,15 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// A Genome must be uniquely identifiable so we can check that derived
-// objects, such as Seeds are only used with the correct Genome.
-// This link between objects is especially important when Genomes are
-// serialised to disk for later use.
+// A Genome is one or more Sequences from a FASTA file. It should be
+// uniquely identifiable so we can check that derived objects, such 
+// as Seeds are only used with the correct Genome. This link between
+// objects is especially important when Genomes are serialised to disk
+// for later use.
 type Genome struct {
 	Name       string
 	UUID       string
-	Sequences  []*Sequence
+	Sequences  []*FastaRec
 	FastaFiles []*FastaFile
 	Provenance []runp.RunParameters
 	Version    string
@@ -33,7 +34,7 @@ func NewGenome(name string) *Genome {
 		Name:       name,
 		UUID:       uuid.String(),
 		Provenance: prov,
-		Version:    `0.1.0`,
+		Version:    `0.2.0`,
 	}
 }
 
@@ -79,13 +80,25 @@ func (g *Genome) NewSeed(seed string) (*Seed, error) {
 
 func (g *Genome) AddFastaFile(file string) error {
 	// Retrieve *Sequences from FASTA
-	seqs, err := ParseFastaFile(file)
+	ff, err := OpenFastaFile(file)
 	if err != nil {
 		return fmt.Errorf("genome.Genome.AddFastaFile: %w", err)
 	}
+	g.FastaFiles = append(g.FastaFiles, ff)
 
 	// Add to Genome
-	g.Sequences = append(g.Sequences, seqs...)
+	//g.Sequences = append(g.Sequences, seqs...)
+    var fr *FastaRec
+    for {
+        fr, err = ff.Next()
+	    if err != nil {
+		    return fmt.Errorf("error adding FASTA file: %w", err)
+	    }
+        if fr == nil {
+            break
+        }
+	    g.Sequences = append(g.Sequences, fr)
+    }
 
 	// Add FASTA file to Genome
 	if len(seqs) > 0 {
