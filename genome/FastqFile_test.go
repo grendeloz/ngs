@@ -46,22 +46,27 @@ func TestOpenFastqFile(t *testing.T) {
 
 	// Check read 1
 	for i, tst := range tests {
-		found := ff.Next()
-		if !found {
-			t.Fatalf(`read %d not found by Next()`, i)
+		rec, err := ff.Next()
+		if err != nil {
+			t.Fatalf(`Next() threw an unexpected error: %v`, err)
 		}
-		rec := ff.Record()
+		if rec == nil {
+			t.Fatalf(`test read %d not found by Next()`, i)
+		}
+
 		if tst.Id != rec.Id {
 			t.Fatalf(`read %d Id incorrect - expected %s got %s`,
 				i, tst.Id, rec.Id)
 		}
-		if tst.Seq != rec.Seq {
+		seq := string(rec.Bases)
+		if tst.Seq != seq {
 			t.Fatalf(`read %d Seq incorrect - expected %s got %s`,
-				i, tst.Seq, rec.Seq)
+				i, tst.Seq, seq)
 		}
-		if tst.Qual != rec.Qual {
+		qual := string(rec.Qualities)
+		if tst.Qual != qual {
 			t.Fatalf(`read %d Qual incorrect - expected %s got %s`,
-				i, tst.Qual, rec.Qual)
+				i, tst.Qual, qual)
 		}
 	}
 }

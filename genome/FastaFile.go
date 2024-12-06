@@ -7,8 +7,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-
-	log "github.com/sirupsen/logrus"
 )
 
 // Pattern for header (comment) and Id lines
@@ -46,11 +44,11 @@ func OpenFastaFile(file string) (*FastaFile, error) {
 	}
 	if found {
 		// For gzip files, put a gzip.Reader into the chain
-		reader, err := gzip.NewReader(ff)
+		gzr, err := gzip.NewReader(ff)
 		if err != nil {
 			return fasta, fmt.Errorf("unable to open gzip file %v: %w", file, err)
 		}
-		fasta.scanner = bufio.NewScanner(reader)
+		fasta.scanner = bufio.NewScanner(gzr)
 	} else {
 		// For non gzip files, go straight to bufio.Reader
 		fasta.scanner = bufio.NewScanner(ff)
@@ -87,6 +85,7 @@ func (f *FastaFile) Next() (*FastaRec, error) {
 	}
 
 	thisRec := NewFastaRec(f.nextRecId)
+	thisRec.FastaFile = f
 	f.recCtr++
 	var seq strings.Builder
 
@@ -110,6 +109,25 @@ func (f *FastaFile) Next() (*FastaRec, error) {
 	return thisRec, nil
 }
 
+// ReadAll returns all of the remaining records from the FASTA file. If
+// Next() has not been called then it will return all of the records
+// but if Next() has been called, it will return the remaining records.
+// If there are no records, it returns nil.
+func (f *FastaFile) ReadAll() ([]*FastaRec, error) {
+	var seqs []*FastaRec
+	for {
+		fr, err := f.Next()
+		if err != nil {
+			return seqs, err
+		}
+		if fr == nil {
+			break
+		}
+        seqs = append(seqs,fr)
+	}
+	return seqs, nil
+}
+
 // RecordCount returns the number of records returned with Next().
 func (f *FastaFile) RecordCount() int {
 	return f.recCtr
@@ -119,6 +137,7 @@ func (f *FastaFile) RecordCount() int {
 // the first call, which is therefore slow. Subsequent calls return the
 // already-calculated value.
 func (f *FastaFile) MD5() (string, error) {
+    //fmt.Printf("FastaFile:  %+v\n",f)
 	if f.md5 != "" {
 		return f.md5, nil
 	}

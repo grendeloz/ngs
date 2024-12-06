@@ -13,38 +13,66 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// Seed has a very different use case from Genome. It applies
-// spaced seeds against a genome to create a list of locations where the
-// seeded sequences appear.  A discussion of spaced seeds is beyond the
-// scope of this documentation but the examples below should help.
-// In essence a spaced seed is a way to create derived sequences by
-// sampling non-contiguous positions from a source sequence. Only
-// positions with a 1 in the seed are used to create the seed sequence.
+// Seed is a struct that holds the list of seeded sequence and locations
+// created when a spaced seed is run against a genome.
+// A discussion of spaced seeds is beyond the scope of this documentation
+// but the examples below should help.
+// It's also worth noting that spaced seeds only help mitigate the
+// effects of substitution variants/errors and cannot help with indels
+// which create frame shifts in the sequences.
+//
+// In essence a spaced seed is an improvement for kmer-based methods
+// that match a query sequence (e.g. read) against a target sequence
+// (e.g. genome).
+// A weakness of standard kmer-based matching methods is that for a kmer
+// of size k, a single substitution variant in a query sequence will
+// disrupt k-1 kmers before the variant and k-1 kmers after the variant.
+// For a concrete example, if you have a 100base read with a single
+// variant at position 50 and you are using kmers of length 60, NONE of
+// the 60mers derived from the read will exactly match the genome because
+// EVERY possible 60-mer contains the variant base.
+// Spaced seeds sample non-contiguous positions from the query and
+// target based on a specified mask (see 5 mask examples below).
+// As you move the mask along the read, some seeds will be affected by
+// the variant and some will not so you have a better chance of finding
+// kmers that match the query and target sequences.
+//
+// The diagram below shows 5 spaced seed masks applied to a single
+// sequence and what the derived kmer is in each case.
+// Only positions with a 1 in the mask are used to create the sequence.
 // Spaced seeds are useful for finding inexact alignments without having
-// a mismatch-tolerant algorithm. The seeds below show which bases from
-// the source sequence would be kept in each seed and what the final
+// a mismatch-tolerant algorithm. The examples below show which bases from
+// the source sequence would be kept for each mask and what the final
 // seed sequence would be.
+//
+// Mask 1 uses consecutive bases so it is the same as not using spaced
+// seeds. Unsurprisingly the source sequence exactly matches the
+// masked sequence.
+//
+// Mask 2 uses every second base so as it slides along the query
+// sequence, a single base substitution variant/error will only affect
+// every second seed since the variant position will be skipped by the
+// mask half of the time.
 //
 //	source  ACGTACGTACGTACGTACGT
 //
-//	1 seed  1_1_1_1_1_1_1_1_1_1_
-//	        A G A G A G A G A G   =>  AGAGAGAGAG
-//
-//	2 seed  11__11__11__11__11__
-//	        AC  AC  AC  AC  AC    =>  ACACACACAC
-//
-//	3 seed  ___1___1___1___1___1
-//	           T   T   T   T   T  =>  TTTTT
-//
-//	4 seed  11111111111111111111
+//	1 mask  11111111111111111111
 //	        ACGTACGTACGTACGTACGT  =>  ACGTACGTACGTACGTACGT
 //
-//	5 seed  1____1____1____1____
-//	        A    C    G    T      =>  ACGT
+//	2 mask  1_1_1_1_1_1_1_1_1_1_
+//	        A G A G A G A G A G   =>  AGAGAGAGAG
 //
-// Because a Seed is fundamentally related to the Genome from
-// which it is created, Seeds must be created via the Genome method
-// NewSeed.
+//	3 mask  11__11__11__11__11__
+//	        AC  AC  AC  AC  AC    =>  ACACACACAC
+//
+//	4 mask  ___1___1___1___1___1
+//	           T   T   T   T   T  =>  TTTTT
+//
+//	5 mask  1___11___111___1111_
+//	        A   AC   CGT   TACG   =>  AACCGTTACG
+//
+// Because a Seed is fundamentally related to the Genome from which it
+// is created, Seeds are created via the Genome type NewSeed() function.
 type Seed struct {
 	Mask       string // e.g. 11_1_1
 	Sequences  []*FastaRec
@@ -128,21 +156,18 @@ func SeedFromGob(file string) (*Seed, error) {
 }
 
 // addSequence is a private function that only works to copy relevant
-// pieces of a Sequence from a Genome to a Seed.
+// pieces of a FastaRec from a Genome to a Seed. We copy because we
+// don't want to mess up the originals and we are not going to store the
+// bases which will be going into the Sequence byte array.
 func (gs *Seed) addSequence(f *FastaRec) error {
-	ns := Sequence{}
-
-	// Note that Seed *Sequence do not hold the sequence bases -
-	// these are in Seed.Sequence with Seed.Offsets
-	// identifying where each Sequence starts and ends.
-	ns.Header = f.Header
-	ns.FastaFile = f.FastaFile
+	nfr := NewFastaRec(f.Header)
+	nfr.FastaFile = f.FastaFile
 
 	// End of the current Seed sequence
 	offset := len(gs.Sequence)
 
-	gs.Offsets[s.Header] = offset
-	gs.Sequences = append(gs.Sequences, &ns)
+	gs.Offsets[f.Header] = offset
+	gs.Sequences = append(gs.Sequences, nfr)
 	gs.Sequence = append(gs.Sequence, []byte(f.Sequence)...)
 
 	return nil

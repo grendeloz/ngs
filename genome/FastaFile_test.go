@@ -37,16 +37,29 @@ func TestFastaDefaults(t *testing.T) {
 func TestOpenFastaFile(t *testing.T) {
 	file := "testdata/GRCh37_test.fa.gz"
 
-	// Check
-	seqs, err := OpenFastaFile(file)
+	// Open file
+	faf, err := OpenFastaFile(file)
 	if err != nil {
 		t.Fatalf(`OpenFastaFile on %s failed: %v`, file, err)
+	}
+
+	// Read all records via loop
+	var seqs []*FastaRec
+	for {
+		fr, err := faf.Next()
+		if err != nil {
+			t.Fatalf(`Next() on %s failed: %v`, file, err)
+		}
+		if fr == nil {
+			break
+		}
+		seqs = append(seqs, fr)
 	}
 
 	e1 := 27
 	g1 := len(seqs)
 	if e1 != g1 {
-		t.Fatalf(`Genome sequence count should be %d but is %d`, e1, g1)
+		t.Fatalf(`FASTA sequence count should be %d but is %d`, e1, g1)
 	}
 
 	e2 := 16569
@@ -105,7 +118,10 @@ func TestOpenFastaFile(t *testing.T) {
 	}
 
 	e30 := `d900cf9254cc50cbce326163f78acebc`
-	g30 := seqs[26].FastaFile.MD5
+	g30, err := seqs[26].FastaFile.MD5()
+	if err != nil {
+		t.Fatalf(`MD5() failed: %v`, err)
+	}
 	if e30 != g30 {
 		t.Fatalf(`seq 26 FastaFile.MD5 incorrect - should be %v but is %v`, e30, g30)
 	}
@@ -117,7 +133,10 @@ func TestOpenFastaFile(t *testing.T) {
 	}
 
 	e32 := `d900cf9254cc50cbce326163f78acebc`
-	g32 := seqs[0].FastaFile.MD5
+	g32, err := seqs[0].FastaFile.MD5()
+	if err != nil {
+		t.Fatalf(`MD5() failed: %v`, err)
+	}
 	if e32 != g32 {
 		t.Fatalf(`seq 0 FastaFile.MD5 incorrect - should be %v but is %v`, e32, g32)
 	}
@@ -127,4 +146,27 @@ func TestOpenFastaFile(t *testing.T) {
 	if e33 != g33 {
 		t.Fatalf(`seq 0 FastaFile.Filepath incorrect - should be %v but is %v`, e33, g33)
 	}
+}
+
+func TestReadAll(t *testing.T) {
+	file := "testdata/GRCh37_test.fa.gz"
+
+	// Open file
+	faf, err := OpenFastaFile(file)
+	if err != nil {
+		t.Fatalf(`OpenFastaFile on %s failed: %v`, file, err)
+	}
+
+	// Read all records
+	seqs, err := faf.ReadAll()
+	if err != nil {
+		t.Fatalf(`ReadAll failed: %v`, err)
+	}
+
+	e1 := 27
+	g1 := len(seqs)
+	if e1 != g1 {
+		t.Fatalf(`FASTA sequence count should be %d but is %d`, e1, g1)
+	}
+
 }

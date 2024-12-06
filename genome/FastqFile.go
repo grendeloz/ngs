@@ -85,9 +85,10 @@ func (f *FastqFile) Next() (*FastqRec, error) {
 	thisRec := NewFastqRec()
 	f.recCtr++
 
-	// First record is a special case
+	// First record special case - we already read the first line
 	if f.nextRecId != "" {
 		thisRec.Id = f.nextRecId
+		f.nextRecId = ""
 	} else {
 		f.scanner.Scan()
 		thisRec.Id = f.scanner.Text()

@@ -1,8 +1,6 @@
 package genome
 
 import (
-	"fmt"
-	"log"
 	"regexp"
 	"strings"
 )

@@ -14,7 +14,7 @@ import (
 )
 
 // A Genome is one or more Sequences from a FASTA file. It should be
-// uniquely identifiable so we can check that derived objects, such 
+// uniquely identifiable so we can check that derived objects, such
 // as Seeds are only used with the correct Genome. This link between
 // objects is especially important when Genomes are serialised to disk
 // for later use.
@@ -22,7 +22,7 @@ type Genome struct {
 	Name       string
 	UUID       string
 	Sequences  []*FastaRec
-	FastaFiles []*FastaFile
+	FastaFiles map[string]string
 	Provenance []runp.RunParameters
 	Version    string
 }
@@ -30,9 +30,11 @@ type Genome struct {
 func NewGenome(name string) *Genome {
 	uuid := uuid.New()
 	prov := []runp.RunParameters{runp.NewRunParameters()}
+	ff := make(map[string]string)
 	return &Genome{
 		Name:       name,
 		UUID:       uuid.String(),
+		FastaFiles: ff,
 		Provenance: prov,
 		Version:    `0.2.0`,
 	}
@@ -84,25 +86,26 @@ func (g *Genome) AddFastaFile(file string) error {
 	if err != nil {
 		return fmt.Errorf("genome.Genome.AddFastaFile: %w", err)
 	}
-	g.FastaFiles = append(g.FastaFiles, ff)
+
+	// Add filepath and MD5
+	md5, err := ff.MD5()
+	if err != nil {
+		return fmt.Errorf("error calculating MD5 from FASTA file: %w", err)
+	}
+	g.FastaFiles[file] = md5
 
 	// Add to Genome
 	//g.Sequences = append(g.Sequences, seqs...)
-    var fr *FastaRec
-    for {
-        fr, err = ff.Next()
-	    if err != nil {
-		    return fmt.Errorf("error adding FASTA file: %w", err)
-	    }
-        if fr == nil {
-            break
-        }
-	    g.Sequences = append(g.Sequences, fr)
-    }
-
-	// Add FASTA file to Genome
-	if len(seqs) > 0 {
-		g.FastaFiles = append(g.FastaFiles, seqs[0].FastaFile)
+	var fr *FastaRec
+	for {
+		fr, err = ff.Next()
+		if err != nil {
+			return fmt.Errorf("error adding FASTA file: %w", err)
+		}
+		if fr == nil {
+			break
+		}
+		g.Sequences = append(g.Sequences, fr)
 	}
 
 	return nil
@@ -111,7 +114,7 @@ func (g *Genome) AddFastaFile(file string) error {
 // GetSequence returns a *Sequence or an error if the named sequence is
 // not found. Note that the match is exact so case, spaces etc all
 // matter - perfect match or no match.
-func (g *Genome) GetSequence(seqName string) (*Sequence, error) {
+func (g *Genome) GetSequence(seqName string) (*FastaRec, error) {
 	for _, s := range g.Sequences {
 		if seqName == s.Name {
 			return s, nil

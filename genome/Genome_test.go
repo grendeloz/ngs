@@ -26,7 +26,10 @@ func TestGenomeAddFastaFile(t *testing.T) {
 	}
 
 	e2 := `d900cf9254cc50cbce326163f78acebc`
-	g2 := genome.Sequences[0].FastaFile.MD5
+	g2, err := genome.Sequences[0].FastaFile.MD5()
+	if err != nil {
+		t.Fatalf(`*MD5() onn %s failed: %v`, file, err)
+	}
 	if e2 != g2 {
 		t.Fatalf(`seq 0 FastaFile.MD5 incorrect - should be %v but is %v`, e2, g2)
 	}

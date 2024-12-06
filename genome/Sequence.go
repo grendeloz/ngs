@@ -2,9 +2,6 @@ package genome
 
 import (
 	"fmt"
-	"log"
-	"regexp"
-	"strings"
 )
 
 // Sequence is a light weight struct to store a named sequence.
