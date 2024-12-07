@@ -4,14 +4,11 @@ All notable changes to this project will be documented in this file.
 
 ## Unreleased
 
-Changes since v0.3.0
+Changes since v0.4.0
 
-## v0.3.0
+## v0.4.0
 
 ### Changes
-- Changed to a single module at the root of the repo - the old model of
-having multiple packages, each as a separate module, was awkward and was
-causing needless trouble.
 - Complete reorganisation of the genome package which introduced a very
 large number of breaking changes - too many to sensibly list. You should
 consider this release of genome to be a whole new package.
@@ -21,6 +18,13 @@ consider this release of genome to be a whole new package.
  - Sequence type is now a simple standalone type for sequence
  manipulation. Functions are provided to create Sequence from FastaRec
  and FastqRec types.
+
+## v0.3.0
+
+### Changes
+- Changed to a single module at the root of the repo - the old model of
+having multiple packages, each as a separate module, was awkward and was
+causing needless trouble.
 
 ## v0.2.0
 
